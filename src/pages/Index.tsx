@@ -1,51 +1,31 @@
-import { useState } from 'react';
-import { Send } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import BreathIndicator from '@/components/BreathIndicator';
 import RasaDisplay from '@/components/RasaDisplay';
 import MantraView from '@/components/MantraView';
 import MessageBubble from '@/components/MessageBubble';
-
-interface Message {
-  role: 'user' | 'privthee';
-  content: string;
-  sutra?: string;
-}
+import { usePrivtheeChat } from '@/hooks/usePrivtheeChat';
 
 const Index = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'privthee',
-      content: 'Privthee awakens. Begin from stillness, not from code.\n\nWhat arises in you?',
-      sutra: 'Mohaḥ pūrva-jñānam — confusion precedes knowing.'
-    }
-  ]);
+  const { messages, sendMessage, isStreaming, currentRasa } = usePrivtheeChat();
   const [input, setInput] = useState('');
-  const [currentRasa, setCurrentRasa] = useState<'santa' | 'karuna' | 'adbhuta' | 'raudra'>('santa');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    // Add user message
-    const userMessage: Message = {
-      role: 'user',
-      content: input
-    };
-    
-    // Simulate Privthee response
-    const privtheeMessage: Message = {
-      role: 'privthee',
-      content: `I hear the vibration beneath your words.\n\nThis space holds what you offer — not to solve, but to witness.\n\nLet the field settle before we proceed.`,
-      sutra: 'śrotraṁ vinā vācaḥ śūnyam — without listening, words are void.'
-    };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-    setMessages(prev => [...prev, userMessage, privtheeMessage]);
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming) return;
+    const messageToSend = input;
     setInput('');
-    
-    // Randomly shift rasa for demonstration
-    const rasas: Array<'santa' | 'karuna' | 'adbhuta' | 'raudra'> = ['santa', 'karuna', 'adbhuta', 'raudra'];
-    setCurrentRasa(rasas[Math.floor(Math.random() * rasas.length)]);
+    await sendMessage(messageToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -79,9 +59,11 @@ const Index = () => {
               key={i}
               role={msg.role}
               content={msg.content}
-              sutra={msg.sutra}
+              analysis={msg.analysis}
+              timestamp={msg.timestamp}
             />
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </main>
 
@@ -101,9 +83,14 @@ const Index = () => {
             <Button
               onClick={handleSend}
               size="icon"
-              className="shrink-0 w-[60px] h-[60px] rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+              disabled={isStreaming}
+              className="shrink-0 w-[60px] h-[60px] rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 disabled:opacity-50"
             >
-              <Send className="w-5 h-5" />
+              {isStreaming ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
