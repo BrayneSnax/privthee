@@ -110,9 +110,18 @@ export const usePrivtheeChat = () => {
           if (delta) {
             accumulatedContent += delta;
             
-            // Try to parse as complete JSON response
+            // Try to parse as complete JSON response (strip markdown code fences if present)
             try {
-              const responseData = JSON.parse(accumulatedContent);
+              let cleanContent = accumulatedContent.trim();
+              
+              // Remove markdown code fences
+              if (cleanContent.startsWith('```json')) {
+                cleanContent = cleanContent.replace(/^```json\s*\n/, '').replace(/\n```\s*$/, '');
+              } else if (cleanContent.startsWith('```')) {
+                cleanContent = cleanContent.replace(/^```\s*\n/, '').replace(/\n```\s*$/, '');
+              }
+              
+              const responseData = JSON.parse(cleanContent);
               if (responseData.analysis && responseData.sections) {
                 setMessages(prev => {
                   const lastMsg = prev[prev.length - 1];
