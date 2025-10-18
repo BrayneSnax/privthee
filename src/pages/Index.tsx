@@ -60,6 +60,8 @@ const Index = () => {
               role={msg.role}
               content={msg.content}
               analysis={msg.analysis}
+              sections={msg.sections}
+              closing={msg.closing}
               timestamp={msg.timestamp}
             />
           ))}

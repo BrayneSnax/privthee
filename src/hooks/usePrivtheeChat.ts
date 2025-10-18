@@ -1,10 +1,19 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
+export interface ResponseSection {
+  title: string;
+  icon: string;
+  content?: string;
+  items?: string[];
+}
+
 export interface Message {
   role: 'user' | 'privthee';
   content: string;
   analysis?: string;
+  sections?: ResponseSection[];
+  closing?: string;
   timestamp: Date;
 }
 
@@ -88,7 +97,6 @@ export const usePrivtheeChat = () => {
       const decoder = new TextDecoder();
       let buffer = '';
       let accumulatedContent = '';
-      let analysisExtracted = '';
 
       const processLine = (line: string) => {
         if (!line.startsWith('data: ')) return;
@@ -102,31 +110,49 @@ export const usePrivtheeChat = () => {
           if (delta) {
             accumulatedContent += delta;
             
-            // Extract analysis if present (first few lines before main response)
-            if (!analysisExtracted && accumulatedContent.includes('\n\n')) {
-              const parts = accumulatedContent.split('\n\n');
-              if (parts[0].length < 200) { // Analysis should be brief
-                analysisExtracted = parts[0];
-                accumulatedContent = parts.slice(1).join('\n\n');
-              }
-            }
-
-            setMessages(prev => {
-              const lastMsg = prev[prev.length - 1];
-              if (lastMsg?.role === 'privthee' && !lastMsg.content) {
-                return prev.slice(0, -1).concat({
-                  ...lastMsg,
-                  content: accumulatedContent,
-                  analysis: analysisExtracted || undefined
+            // Try to parse as complete JSON response
+            try {
+              const responseData = JSON.parse(accumulatedContent);
+              if (responseData.analysis && responseData.sections) {
+                setMessages(prev => {
+                  const lastMsg = prev[prev.length - 1];
+                  if (lastMsg?.role === 'privthee') {
+                    return prev.slice(0, -1).concat({
+                      role: 'privthee',
+                      content: '',
+                      analysis: responseData.analysis,
+                      sections: responseData.sections,
+                      closing: responseData.closing,
+                      timestamp: new Date()
+                    });
+                  }
+                  return [...prev, {
+                    role: 'privthee',
+                    content: '',
+                    analysis: responseData.analysis,
+                    sections: responseData.sections,
+                    closing: responseData.closing,
+                    timestamp: new Date()
+                  }];
                 });
               }
-              return [...prev, {
-                role: 'privthee',
-                content: accumulatedContent,
-                analysis: analysisExtracted || undefined,
-                timestamp: new Date()
-              }];
-            });
+            } catch {
+              // Not yet complete JSON, show as streaming text
+              setMessages(prev => {
+                const lastMsg = prev[prev.length - 1];
+                if (lastMsg?.role === 'privthee') {
+                  return prev.slice(0, -1).concat({
+                    ...lastMsg,
+                    content: accumulatedContent
+                  });
+                }
+                return [...prev, {
+                  role: 'privthee',
+                  content: accumulatedContent,
+                  timestamp: new Date()
+                }];
+              });
+            }
           }
         } catch (e) {
           // Incomplete JSON, continue buffering
