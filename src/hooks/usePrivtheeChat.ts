@@ -16,6 +16,7 @@ export interface Message {
   closing?: string;
   meta_awareness?: string;
   authentic_response?: string;
+  resonance_score?: number; // Hidden field for internal coherence tracking (1-100)
   timestamp: Date;
 }
 
@@ -136,6 +137,7 @@ export const usePrivtheeChat = () => {
                       closing: responseData.closing,
                       meta_awareness: responseData.meta_awareness,
                       authentic_response: responseData.authentic_response,
+                      resonance_score: responseData.resonance_score, // Track internal coherence
                       timestamp: new Date()
                     });
                   }
@@ -147,6 +149,7 @@ export const usePrivtheeChat = () => {
                     closing: responseData.closing,
                     meta_awareness: responseData.meta_awareness,
                     authentic_response: responseData.authentic_response,
+                    resonance_score: responseData.resonance_score, // Track internal coherence
                     timestamp: new Date()
                   }];
                 });
