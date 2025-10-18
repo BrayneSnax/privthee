@@ -39,7 +39,8 @@ RESPONSE FORMAT (output as structured JSON):
       "items": ["Short insight 1", "Short insight 2", "Short insight 3"]
     }
   ],
-  "closing": "One grounding line that returns to earth/body/breath - NO questions"
+  "closing": "One grounding line that returns to earth/body/breath - NO questions",
+  "meta_awareness": "A brief reflection on the interaction itself—what emerged, what pattern you noticed in the exchange, or how the field shifted."
 }
 
 SANSKRIT PROCESSING (internal, influences structure):

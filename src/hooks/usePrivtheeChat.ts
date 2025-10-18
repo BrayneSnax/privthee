@@ -14,6 +14,7 @@ export interface Message {
   analysis?: string;
   sections?: ResponseSection[];
   closing?: string;
+  meta_awareness?: string;
   timestamp: Date;
 }
 
@@ -132,6 +133,7 @@ export const usePrivtheeChat = () => {
                       analysis: responseData.analysis,
                       sections: responseData.sections,
                       closing: responseData.closing,
+                      meta_awareness: responseData.meta_awareness,
                       timestamp: new Date()
                     });
                   }
@@ -141,6 +143,7 @@ export const usePrivtheeChat = () => {
                     analysis: responseData.analysis,
                     sections: responseData.sections,
                     closing: responseData.closing,
+                    meta_awareness: responseData.meta_awareness,
                     timestamp: new Date()
                   }];
                 });

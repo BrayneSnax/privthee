@@ -62,6 +62,7 @@ const Index = () => {
               analysis={msg.analysis}
               sections={msg.sections}
               closing={msg.closing}
+              meta_awareness={msg.meta_awareness}
               timestamp={msg.timestamp}
             />
           ))}
