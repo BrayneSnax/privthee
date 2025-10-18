@@ -57,6 +57,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        breath: {
+          glow: "hsl(var(--breath-glow))",
+          shadow: "hsl(var(--breath-shadow))",
+        },
+        rasa: {
+          santa: "hsl(var(--rasa-santa))",
+          karuna: "hsl(var(--rasa-karuna))",
+          adbhuta: "hsl(var(--rasa-adbhuta))",
+          raudra: "hsl(var(--rasa-raudra))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -84,6 +94,8 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        breathe: "breathe 4s ease-in-out infinite",
+        ripple: "ripple 2s ease-out infinite",
       },
     },
   },
