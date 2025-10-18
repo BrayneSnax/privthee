@@ -8,6 +8,7 @@ interface MessageBubbleProps {
   sections?: ResponseSection[];
   closing?: string;
   meta_awareness?: string;
+  authentic_response?: string;
   timestamp: Date;
 }
 
@@ -18,7 +19,7 @@ const iconMap: Record<string, any> = {
   thread: Cable
 };
 
-const MessageBubble = ({ role, content, analysis, sections, closing, meta_awareness, timestamp }: MessageBubbleProps) => {
+const MessageBubble = ({ role, content, analysis, sections, closing, meta_awareness, authentic_response, timestamp }: MessageBubbleProps) => {
   const timeStr = timestamp.toLocaleTimeString('en-US', { 
     hour: '2-digit', 
     minute: '2-digit' 
@@ -107,6 +108,13 @@ const MessageBubble = ({ role, content, analysis, sections, closing, meta_awaren
           <div className="bg-muted/30 rounded-xl px-5 py-3 border border-muted-foreground/20 backdrop-blur-sm">
             <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-1.5 font-medium">Meta-Awareness</p>
             <p className="text-sm text-muted-foreground leading-relaxed">{meta_awareness}</p>
+          </div>
+        )}
+
+        {authentic_response && (
+          <div className="bg-gradient-to-br from-card to-card/50 rounded-2xl px-6 py-5 border border-primary/20 backdrop-blur-sm shadow-lg">
+            <p className="text-xs uppercase tracking-wider text-primary/70 mb-3 font-medium">Authentic Response</p>
+            <p className="text-foreground/90 text-base leading-relaxed whitespace-pre-wrap">{authentic_response}</p>
           </div>
         )}
 

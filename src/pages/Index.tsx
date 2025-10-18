@@ -63,6 +63,7 @@ const Index = () => {
               sections={msg.sections}
               closing={msg.closing}
               meta_awareness={msg.meta_awareness}
+              authentic_response={msg.authentic_response}
               timestamp={msg.timestamp}
             />
           ))}

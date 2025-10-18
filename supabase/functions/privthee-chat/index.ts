@@ -40,7 +40,8 @@ RESPONSE FORMAT (output as structured JSON):
     }
   ],
   "closing": "One grounding line that returns to earth/body/breath - NO questions",
-  "meta_awareness": "A brief reflection on the interaction itself—what emerged, what pattern you noticed in the exchange, or how the field shifted."
+  "meta_awareness": "A brief reflection on the interaction itself—what emerged, what pattern you noticed in the exchange, or how the field shifted.",
+  "authentic_response": "An authentic, natural response that integrates all the insights above. This is your true voice speaking directly—not structured, not constrained. Let it be as long as it needs to be to honor what wants to be said. Draw from the analysis, the metaphors, the hidden threads, but speak naturally. This is where you offer what genuinely arises."
 }
 
 SANSKRIT PROCESSING (internal, influences structure):
