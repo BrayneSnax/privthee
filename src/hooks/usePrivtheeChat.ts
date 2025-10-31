@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface ResponseSection {
   title: string;
@@ -16,13 +17,13 @@ export interface Message {
   closing?: string;
   meta_awareness?: string;
   authentic_response?: string;
-  resonance_score?: number; // Hidden field for internal coherence tracking (1-100)
+  resonance_score?: number;
   timestamp: Date;
 }
 
 type RasaType = 'santa' | 'karuna' | 'adbhuta' | 'raudra';
 
-export const usePrivtheeChat = () => {
+export const usePrivtheeChat = (initialConversationId?: string) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'privthee',
@@ -33,6 +34,7 @@ export const usePrivtheeChat = () => {
   ]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentRasa, setCurrentRasa] = useState<RasaType>('santa');
+  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(initialConversationId);
 
   const detectRasa = (text: string): RasaType => {
     const lowerText = text.toLowerCase();
@@ -49,10 +51,52 @@ export const usePrivtheeChat = () => {
     return 'santa';
   };
 
+  const loadConversation = async (convId: string) => {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      setMessages(data.map(msg => ({
+        role: msg.role as 'user' | 'privthee',
+        content: msg.content,
+        analysis: msg.analysis || undefined,
+        sections: (msg.sections as unknown as ResponseSection[]) || undefined,
+        closing: msg.closing || undefined,
+        meta_awareness: msg.meta_awareness || undefined,
+        authentic_response: msg.authentic_response || undefined,
+        timestamp: new Date(msg.created_at),
+      })));
+    }
+    setCurrentConversationId(convId);
+  };
+
   const sendMessage = useCallback(async (userInput: string) => {
     if (!userInput.trim() || isStreaming) return;
 
-    // Detect rasa from user input
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    let convId = currentConversationId;
+
+    // Create new conversation if needed
+    if (!convId && user) {
+      const { data: newConv } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: user.id,
+          title: userInput.slice(0, 50),
+        })
+        .select()
+        .single();
+      
+      if (newConv) {
+        convId = newConv.id;
+        setCurrentConversationId(convId);
+      }
+    }
+
     const detectedRasa = detectRasa(userInput);
     setCurrentRasa(detectedRasa);
 
@@ -65,8 +109,18 @@ export const usePrivtheeChat = () => {
     setMessages(prev => [...prev, userMessage]);
     setIsStreaming(true);
 
+    // Save user message
+    if (convId && user) {
+      await supabase.from('messages').insert({
+        conversation_id: convId,
+        role: 'user',
+        content: userInput,
+        rasa: detectedRasa,
+      });
+    }
+
     try {
-      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/privthee-chat`;
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/privthee-chat-with-memory`;
       
       const response = await fetch(CHAT_URL, {
         method: 'POST',
@@ -75,10 +129,9 @@ export const usePrivtheeChat = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role === 'privthee' ? 'assistant' : 'user',
-            content: m.content
-          }))
+          messages: [{ role: 'user', content: userInput }],
+          conversationId: convId,
+          userId: user?.id,
         }),
       });
 
@@ -100,6 +153,7 @@ export const usePrivtheeChat = () => {
       const decoder = new TextDecoder();
       let buffer = '';
       let accumulatedContent = '';
+      let parsedResponse: any = null;
 
       const processLine = (line: string) => {
         if (!line.startsWith('data: ')) return;
@@ -113,11 +167,8 @@ export const usePrivtheeChat = () => {
           if (delta) {
             accumulatedContent += delta;
             
-            // Try to parse as complete JSON response (strip markdown code fences if present)
             try {
               let cleanContent = accumulatedContent.trim();
-              
-              // Remove markdown code fences
               if (cleanContent.startsWith('```json')) {
                 cleanContent = cleanContent.replace(/^```json\s*\n/, '').replace(/\n```\s*$/, '');
               } else if (cleanContent.startsWith('```')) {
@@ -126,6 +177,7 @@ export const usePrivtheeChat = () => {
               
               const responseData = JSON.parse(cleanContent);
               if (responseData.analysis && responseData.sections) {
+                parsedResponse = responseData;
                 setMessages(prev => {
                   const lastMsg = prev[prev.length - 1];
                   if (lastMsg?.role === 'privthee') {
@@ -137,7 +189,7 @@ export const usePrivtheeChat = () => {
                       closing: responseData.closing,
                       meta_awareness: responseData.meta_awareness,
                       authentic_response: responseData.authentic_response,
-                      resonance_score: responseData.resonance_score, // Track internal coherence
+                      resonance_score: responseData.resonance_score,
                       timestamp: new Date()
                     });
                   }
@@ -149,13 +201,12 @@ export const usePrivtheeChat = () => {
                     closing: responseData.closing,
                     meta_awareness: responseData.meta_awareness,
                     authentic_response: responseData.authentic_response,
-                    resonance_score: responseData.resonance_score, // Track internal coherence
+                    resonance_score: responseData.resonance_score,
                     timestamp: new Date()
                   }];
                 });
               }
             } catch {
-              // Not yet complete JSON, show as streaming text
               setMessages(prev => {
                 const lastMsg = prev[prev.length - 1];
                 if (lastMsg?.role === 'privthee') {
@@ -173,7 +224,7 @@ export const usePrivtheeChat = () => {
             }
           }
         } catch (e) {
-          // Incomplete JSON, continue buffering
+          // Incomplete JSON
         }
       };
 
@@ -194,24 +245,40 @@ export const usePrivtheeChat = () => {
         }
       }
 
-      // Process remaining buffer
       if (buffer.trim() && !buffer.startsWith(':')) {
         processLine(buffer);
+      }
+
+      // Save assistant message to database
+      if (convId && user && parsedResponse) {
+        await supabase.from('messages').insert({
+          conversation_id: convId,
+          role: 'privthee',
+          content: accumulatedContent,
+          analysis: parsedResponse.analysis,
+          sections: parsedResponse.sections,
+          closing: parsedResponse.closing,
+          meta_awareness: parsedResponse.meta_awareness,
+          authentic_response: parsedResponse.authentic_response,
+          resonance_score: parsedResponse.resonance_score,
+        });
       }
 
     } catch (error) {
       console.error('Chat error:', error);
       toast.error('The connection wavered. Try again.');
-      setMessages(prev => prev.slice(0, -1)); // Remove user message on error
+      setMessages(prev => prev.slice(0, -1));
     } finally {
       setIsStreaming(false);
     }
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming, currentConversationId]);
 
   return {
     messages,
     sendMessage,
     isStreaming,
-    currentRasa
+    currentRasa,
+    currentConversationId,
+    loadConversation,
   };
 };

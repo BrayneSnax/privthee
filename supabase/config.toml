@@ -2,3 +2,12 @@ project_id = "qzqbeylucuexahaapubf"
 
 [functions.privthee-chat]
 verify_jwt = false
+
+[functions.privthee-chat-with-memory]
+verify_jwt = false
+
+[functions.parse-document]
+verify_jwt = false
+
+[functions.generate-visual-metaphor]
+verify_jwt = false
