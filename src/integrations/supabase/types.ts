@@ -106,6 +106,7 @@ export type Database = {
           id: string
           metadata: Json | null
           parsed_at: string | null
+          storage_path: string | null
           title: string
           user_id: string | null
         }
@@ -114,6 +115,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           parsed_at?: string | null
+          storage_path?: string | null
           title: string
           user_id?: string | null
         }
@@ -122,6 +124,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           parsed_at?: string | null
+          storage_path?: string | null
           title?: string
           user_id?: string | null
         }

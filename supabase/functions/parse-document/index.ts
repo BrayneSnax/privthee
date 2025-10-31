@@ -24,29 +24,60 @@ serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Read file content
+    // Upload file to storage
+    const timestamp = Date.now();
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const storagePath = `${userId}/${timestamp}_${sanitizedFileName}`;
+    
     const fileBuffer = await file.arrayBuffer();
-    const fileContent = new TextDecoder().decode(fileBuffer);
+    const { error: uploadError } = await supabase.storage
+      .from('knowledge-documents')
+      .upload(storagePath, fileBuffer, {
+        contentType: file.type,
+        upsert: false,
+      });
 
-    // Store in knowledge_documents table
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      throw uploadError;
+    }
+
+    // Extract content for text files only
+    let content = '';
+    const isTextFile = file.name.endsWith('.txt') || file.name.endsWith('.md');
+    
+    if (isTextFile) {
+      try {
+        content = new TextDecoder('utf-8').decode(fileBuffer);
+      } catch (decodeError) {
+        console.warn("Could not decode text content:", decodeError);
+      }
+    }
+
+    // Store metadata in knowledge_documents table
     const { data, error } = await supabase
       .from('knowledge_documents')
       .insert({
         user_id: userId,
         title: file.name,
-        content: fileContent,
+        content: content,
+        storage_path: storagePath,
         metadata: {
           file_type: file.type,
           file_size: file.size,
+          is_binary: !isTextFile,
         }
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Database insert error:", error);
+      throw error;
+    }
 
     return new Response(
-      JSON.stringify({ documentId: data.id }),
+      JSON.stringify({ documentId: data.id, storagePath }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
