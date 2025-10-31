@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Clock, Plus } from "lucide-react";
+import { Clock, Plus, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface Conversation {
   id: string;
@@ -23,6 +25,8 @@ export const ConversationHistory = ({
   onNewConversation,
 }: ConversationHistoryProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadConversations();
@@ -41,9 +45,14 @@ export const ConversationHistory = ({
     if (data) setConversations(data);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
   return (
     <div className="flex flex-col h-full bg-background/50 backdrop-blur-sm border-r border-border/40">
-      <div className="p-4 border-b border-border/40">
+      <div className="p-4 border-b border-border/40 space-y-2">
         <Button
           onClick={onNewConversation}
           className="w-full"
@@ -51,6 +60,16 @@ export const ConversationHistory = ({
         >
           <Plus className="h-4 w-4 mr-2" />
           New Conversation
+        </Button>
+        
+        <Button
+          onClick={handleSignOut}
+          className="w-full"
+          variant="ghost"
+          size="sm"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
         </Button>
       </div>
       
