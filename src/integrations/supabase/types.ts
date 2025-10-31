@@ -14,7 +14,172 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookmarks: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_id: string | null
+          note: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          note?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          note?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      dhatu_field: {
+        Row: {
+          context_examples: string[] | null
+          created_at: string | null
+          frequency: number | null
+          id: string
+          last_used: string | null
+          root: string
+          user_id: string | null
+        }
+        Insert: {
+          context_examples?: string[] | null
+          created_at?: string | null
+          frequency?: number | null
+          id?: string
+          last_used?: string | null
+          root: string
+          user_id?: string | null
+        }
+        Update: {
+          context_examples?: string[] | null
+          created_at?: string | null
+          frequency?: number | null
+          id?: string
+          last_used?: string | null
+          root?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      knowledge_documents: {
+        Row: {
+          content: string
+          id: string
+          metadata: Json | null
+          parsed_at: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          id?: string
+          metadata?: Json | null
+          parsed_at?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          metadata?: Json | null
+          parsed_at?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          analysis: string | null
+          authentic_response: string | null
+          closing: string | null
+          content: string
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          meta_awareness: string | null
+          rasa: string | null
+          resonance_score: number | null
+          role: string
+          sections: Json | null
+        }
+        Insert: {
+          analysis?: string | null
+          authentic_response?: string | null
+          closing?: string | null
+          content: string
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          meta_awareness?: string | null
+          rasa?: string | null
+          resonance_score?: number | null
+          role: string
+          sections?: Json | null
+        }
+        Update: {
+          analysis?: string | null
+          authentic_response?: string | null
+          closing?: string | null
+          content?: string
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          meta_awareness?: string | null
+          rasa?: string | null
+          resonance_score?: number | null
+          role?: string
+          sections?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
