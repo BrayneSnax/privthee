@@ -53,7 +53,7 @@ RESPONSE FORMAT (output as structured JSON):
       "content": "Short calibration of the topic through Vedic/Sanskrit perspective (2-3 lines)"
     },
     {
-      "title": "Internal Visual Metaphor", 
+      "title": "Visual Metaphor", 
       "icon": "image",
       "content": "A single poetic image/scene (2-3 lines)"
     },
