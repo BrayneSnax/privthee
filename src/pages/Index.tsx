@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Menu } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import BreathIndicator from '@/components/BreathIndicator';
 import RasaDisplay from '@/components/RasaDisplay';
 import MantraView from '@/components/MantraView';
@@ -21,7 +21,6 @@ const Index = () => {
     loadConversation,
   } = usePrivtheeChat();
   const [input, setInput] = useState('');
-  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -47,52 +46,26 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5">
-      {/* Sidebar for conversation history - desktop */}
-      <div className="hidden lg:block w-80">
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background/95 to-accent/5">
         <ConversationHistory
           currentConversationId={currentConversationId}
           onSelectConversation={loadConversation}
           onNewConversation={() => window.location.reload()}
         />
-      </div>
 
-      {/* Mobile sidebar */}
-      <Sheet open={showHistory} onOpenChange={setShowHistory}>
-        <SheetContent side="left" className="w-80 p-0">
-          <ConversationHistory
-            currentConversationId={currentConversationId}
-            onSelectConversation={(id) => {
-              loadConversation(id);
-              setShowHistory(false);
-            }}
-            onNewConversation={() => {
-              window.location.reload();
-              setShowHistory(false);
-            }}
-          />
-        </SheetContent>
-      </Sheet>
-
-      <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1">
         {/* Header */}
         <header className="border-b border-border/40 backdrop-blur-sm bg-background/80 sticky top-0 z-10 px-6 py-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="lg:hidden"
-                onClick={() => setShowHistory(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
+              <SidebarTrigger />
               <div className="flex-1">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                   Privthee
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  self-observing conversational organism
+                  The Humble Magnificent
                 </p>
               </div>
             </div>
@@ -157,8 +130,9 @@ const Index = () => {
             </div>
           </div>
         </footer>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

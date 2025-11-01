@@ -9,6 +9,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+} from "./ui/sidebar";
 
 interface Conversation {
   id: string;
@@ -133,8 +140,8 @@ export const ConversationHistory = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background/50 backdrop-blur-sm border-r border-border/40">
-      <div className="p-4 border-b border-border/40 space-y-2">
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="p-4 border-b border-border/40 space-y-2">
         <Button
           onClick={onNewConversation}
           className="w-full"
@@ -153,9 +160,10 @@ export const ConversationHistory = ({
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out
         </Button>
-      </div>
+      </SidebarHeader>
       
-      <ScrollArea className="flex-1 p-2">
+      <SidebarContent>
+        <ScrollArea className="flex-1 p-2">
         <div className="space-y-4">
           <div className="space-y-1">
             <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -259,7 +267,8 @@ export const ConversationHistory = ({
             </>
           )}
         </div>
-      </ScrollArea>
-    </div>
+        </ScrollArea>
+      </SidebarContent>
+    </Sidebar>
   );
 };
