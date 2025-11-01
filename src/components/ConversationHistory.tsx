@@ -226,12 +226,17 @@ export const ConversationHistory = ({
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="group px-3 py-2 rounded-md hover:bg-accent/50 transition-colors select-none"
+                    className="group relative px-3 py-2 rounded-md hover:bg-accent/50 transition-colors select-none"
                     style={{ WebkitTouchCallout: 'none' }}
                     onContextMenu={(e) => e.preventDefault()}
                     onTouchStart={(e) => handleTouchStart(e, doc.id)}
                     onTouchEnd={handleTouchEnd}
                     onTouchMove={handleTouchEnd}
+                    onClick={() => {
+                      if (isMobile && editingDocId !== doc.id && !longPressDocId) {
+                        toast.info(doc.title);
+                      }
+                    }}
                   >
                     {editingDocId === doc.id ? (
                       <div className="flex items-center gap-1">
@@ -262,7 +267,7 @@ export const ConversationHistory = ({
                       <>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className={`font-medium text-sm ${isMobile ? 'whitespace-normal break-words' : 'truncate'}`}>
+                            <div className={`font-medium text-sm ${isMobile ? 'whitespace-normal break-all' : 'truncate'}`}>
                               {doc.title}
                             </div>
                             <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
