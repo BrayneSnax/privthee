@@ -48,7 +48,6 @@ export const ConversationHistory = ({
   const [editTitle, setEditTitle] = useState("");
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const { open: sidebarOpen } = useSidebar();
 
   useEffect(() => {
     loadConversations();
@@ -142,7 +141,10 @@ export const ConversationHistory = ({
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar 
+      collapsible="offcanvas"
+      className="border-r border-border/40"
+    >
       <SidebarHeader className="p-4 border-b border-border/40 space-y-2">
         <Button
           onClick={onNewConversation}
@@ -151,7 +153,7 @@ export const ConversationHistory = ({
           title="New Conversation"
         >
           <Plus className="h-4 w-4 shrink-0" />
-          {sidebarOpen && <span className="ml-2">New Conversation</span>}
+          <span className="ml-2">New Conversation</span>
         </Button>
         
         <Button
@@ -162,41 +164,39 @@ export const ConversationHistory = ({
           title="Sign Out"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {sidebarOpen && <span className="ml-2">Sign Out</span>}
+          <span className="ml-2">Sign Out</span>
         </Button>
       </SidebarHeader>
       
       <SidebarContent>
         <ScrollArea className="flex-1 p-2">
         <div className="space-y-4">
-          {sidebarOpen && (
-            <div className="space-y-1">
-              <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Conversations
-              </h3>
-              {conversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => onSelectConversation(conv.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                    currentConversationId === conv.id
-                      ? "bg-accent text-accent-foreground"
-                      : "hover:bg-accent/50"
-                  }`}
-                >
-                  <div className="font-medium truncate text-sm">
-                    {conv.title || "Untitled"}
-                  </div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                    <Clock className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="space-y-1">
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Conversations
+            </h3>
+            {conversations.map((conv) => (
+              <button
+                key={conv.id}
+                onClick={() => onSelectConversation(conv.id)}
+                className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  currentConversationId === conv.id
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-accent/50"
+                }`}
+              >
+                <div className="font-medium truncate text-sm">
+                  {conv.title || "Untitled"}
+                </div>
+                <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                  <Clock className="h-3 w-3" />
+                  {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}
+                </div>
+              </button>
+            ))}
+          </div>
 
-          {documents.length > 0 && sidebarOpen && (
+          {documents.length > 0 && (
             <>
               <Separator />
               <div className="space-y-1">

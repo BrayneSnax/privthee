@@ -46,7 +46,7 @@ const Index = () => {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background/95 to-accent/5">
         <ConversationHistory
           currentConversationId={currentConversationId}
@@ -54,12 +54,14 @@ const Index = () => {
           onNewConversation={() => window.location.reload()}
         />
 
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 relative">
+        {/* Floating Sidebar Trigger */}
+        <SidebarTrigger className="fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm border border-border/40 hover:bg-accent/50 transition-colors" />
+        
         {/* Header */}
         <header className="border-b border-border/40 backdrop-blur-sm bg-background/80 sticky top-0 z-10 px-6 py-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <SidebarTrigger />
               <div className="flex-1">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                   Privthee
