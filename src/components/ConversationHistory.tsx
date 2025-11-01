@@ -17,7 +17,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from "./ui/sidebar";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 interface Conversation {
   id: string;
   title: string;
@@ -50,7 +50,8 @@ export const ConversationHistory = ({
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const { signOut } = useAuth();
   const navigate = useNavigate();
-
+  const isMobile = useIsMobile();
+ 
   useEffect(() => {
     loadConversations();
     loadDocuments();
@@ -261,7 +262,7 @@ export const ConversationHistory = ({
                       <>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate text-sm">
+                            <div className={`font-medium text-sm ${isMobile ? 'whitespace-normal break-words' : 'truncate'}`}>
                               {doc.title}
                             </div>
                             <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
