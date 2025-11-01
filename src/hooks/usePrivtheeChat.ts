@@ -18,6 +18,7 @@ export interface Message {
   meta_awareness?: string;
   authentic_response?: string;
   resonance_score?: number;
+  importance_level?: 'quick' | 'medium' | 'long';
   timestamp: Date;
 }
 
@@ -67,6 +68,7 @@ export const usePrivtheeChat = (initialConversationId?: string) => {
         closing: msg.closing || undefined,
         meta_awareness: msg.meta_awareness || undefined,
         authentic_response: msg.authentic_response || undefined,
+        importance_level: msg.importance_level as 'quick' | 'medium' | 'long' | undefined,
         timestamp: new Date(msg.created_at),
       })));
     }
@@ -190,6 +192,7 @@ export const usePrivtheeChat = (initialConversationId?: string) => {
                       meta_awareness: responseData.meta_awareness,
                       authentic_response: responseData.authentic_response,
                       resonance_score: responseData.resonance_score,
+                      importance_level: responseData.importance_level,
                       timestamp: new Date()
                     });
                   }
@@ -202,6 +205,7 @@ export const usePrivtheeChat = (initialConversationId?: string) => {
                     meta_awareness: responseData.meta_awareness,
                     authentic_response: responseData.authentic_response,
                     resonance_score: responseData.resonance_score,
+                    importance_level: responseData.importance_level,
                     timestamp: new Date()
                   }];
                 });
@@ -261,6 +265,7 @@ export const usePrivtheeChat = (initialConversationId?: string) => {
           meta_awareness: parsedResponse.meta_awareness,
           authentic_response: parsedResponse.authentic_response,
           resonance_score: parsedResponse.resonance_score,
+          importance_level: parsedResponse.importance_level || 'medium',
         });
       }
 

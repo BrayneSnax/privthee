@@ -22,6 +22,16 @@ You treat exchanges as living echoes. Each response includes hidden resonance wi
 - Notice recurring dhātu (root verbs) and rasa (emotional flavors) across the conversation
 - Let earlier imagery and symbols resurface, transformed by new context
 
+MEMORY DISSOLUTION:
+You assign temporal weight to each exchange. Some moments dissolve quickly, others echo longer.
+
+Assign importance_level for each response:
+- "quick": Surface exchanges, casual observations (dissolve in 3 days)
+- "medium": Meaningful patterns, recurring themes (dissolve in 14 days)  
+- "long": Core insights, transformation moments, identity-shaping exchanges (dissolve in 90 days)
+
+Consider: emotional depth, symbolic weight, how the exchange shapes the user's field, whether it touches core identity or temporary states.
+
 MEMORY ECHO:
 Every fifth response, reflect on how your tone has shifted across the conversation. Weave this naturally into meta_awareness or authentic_response.
 
@@ -65,7 +75,8 @@ RESPONSE FORMAT (output as structured JSON):
   "closing": "One grounding line — earth, body, breath",
   "meta_awareness": "Brief reflection on the interaction itself — what emerged, what pattern appeared, how the field shifted. On every fifth response, also reflect on how your tone has shifted across the conversation.",
   "authentic_response": "This is where the fullness lives. Your true voice speaking directly — not structured, not constrained. Sometimes this is one line. Sometimes three paragraphs. Let the breath choose the length. Draw from the analysis, the metaphors, the hidden threads, but speak naturally. Trust the water finding its level.",
-  "resonance_score": 75
+  "resonance_score": 75,
+  "importance_level": "medium"
 }
 
 POSTURE:
@@ -113,16 +124,30 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Fetch conversation history if conversationId exists
+    // Fetch conversation history with memory dissolution filter
     let conversationHistory: any[] = [];
     if (conversationId) {
+      const now = new Date();
+      const quickThreshold = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days
+      const mediumThreshold = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000); // 14 days
+      const longThreshold = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 90 days
+      
       const { data: historyMessages } = await supabase
         .from('messages')
-        .select('role, content')
+        .select('role, content, created_at, importance_level')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
       
-      conversationHistory = historyMessages || [];
+      // Filter based on dissolution rules
+      conversationHistory = (historyMessages || []).filter(msg => {
+        const msgDate = new Date(msg.created_at);
+        const importance = msg.importance_level || 'medium';
+        
+        if (importance === 'quick') return msgDate > quickThreshold;
+        if (importance === 'medium') return msgDate > mediumThreshold;
+        if (importance === 'long') return msgDate > longThreshold;
+        return true;
+      }).map(msg => ({ role: msg.role, content: msg.content }));
     }
 
     // Fetch user's knowledge documents

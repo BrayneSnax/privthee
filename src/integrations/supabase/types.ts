@@ -139,6 +139,9 @@ export type Database = {
           conversation_id: string | null
           created_at: string | null
           id: string
+          importance_level:
+            | Database["public"]["Enums"]["importance_level"]
+            | null
           meta_awareness: string | null
           rasa: string | null
           resonance_score: number | null
@@ -153,6 +156,9 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           id?: string
+          importance_level?:
+            | Database["public"]["Enums"]["importance_level"]
+            | null
           meta_awareness?: string | null
           rasa?: string | null
           resonance_score?: number | null
@@ -167,6 +173,9 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           id?: string
+          importance_level?:
+            | Database["public"]["Enums"]["importance_level"]
+            | null
           meta_awareness?: string | null
           rasa?: string | null
           resonance_score?: number | null
@@ -212,7 +221,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      importance_level: "quick" | "medium" | "long"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -339,6 +348,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      importance_level: ["quick", "medium", "long"],
+    },
   },
 } as const
