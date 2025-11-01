@@ -142,7 +142,10 @@ export const ConversationHistory = ({
     navigate('/auth');
   };
 
-  const handleTouchStart = (docId: string) => {
+  const handleTouchStart = (e: React.TouchEvent, docId: string) => {
+    // Prevent native text selection/callout from taking over long-press
+    e.stopPropagation();
+    // Note: avoid e.preventDefault() here to keep scrolling smooth
     longPressTimer.current = setTimeout(() => {
       setLongPressDocId(docId);
     }, 500); // 500ms for long press
@@ -160,7 +163,7 @@ export const ConversationHistory = ({
       collapsible="offcanvas"
       className="border-r border-border/40"
     >
-      <SidebarHeader className="p-4 border-b border-border/40 space-y-2">
+      <SidebarHeader className="p-4 border-b border-border/40 space-y-2 select-none">
         <Button
           onClick={onNewConversation}
           className="w-full justify-start"
@@ -222,8 +225,10 @@ export const ConversationHistory = ({
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="group px-3 py-2 rounded-md hover:bg-accent/50 transition-colors"
-                    onTouchStart={() => handleTouchStart(doc.id)}
+                    className="group px-3 py-2 rounded-md hover:bg-accent/50 transition-colors select-none"
+                    style={{ WebkitTouchCallout: 'none' }}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onTouchStart={(e) => handleTouchStart(e, doc.id)}
                     onTouchEnd={handleTouchEnd}
                     onTouchMove={handleTouchEnd}
                   >
