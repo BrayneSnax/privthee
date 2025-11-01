@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Clock, Plus, LogOut, FileText, Trash2, Edit2, Check, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
@@ -46,6 +46,8 @@ export const ConversationHistory = ({
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [longPressDocId, setLongPressDocId] = useState<string | null>(null);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -140,6 +142,19 @@ export const ConversationHistory = ({
     navigate('/auth');
   };
 
+  const handleTouchStart = (docId: string) => {
+    longPressTimer.current = setTimeout(() => {
+      setLongPressDocId(docId);
+    }, 500); // 500ms for long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
   return (
     <Sidebar 
       collapsible="offcanvas"
@@ -208,6 +223,9 @@ export const ConversationHistory = ({
                   <div
                     key={doc.id}
                     className="group px-3 py-2 rounded-md hover:bg-accent/50 transition-colors"
+                    onTouchStart={() => handleTouchStart(doc.id)}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchEnd}
                   >
                     {editingDocId === doc.id ? (
                       <div className="flex items-center gap-1">
@@ -246,12 +264,17 @@ export const ConversationHistory = ({
                               {formatDistanceToNow(new Date(doc.parsed_at), { addSuffix: true })}
                             </div>
                           </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                          <div className={`flex gap-1 transition-opacity ${
+                            longPressDocId === doc.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                          }`}>
                             <Button
                               size="icon"
                               variant="ghost"
                               className="h-7 w-7 shrink-0"
-                              onClick={() => handleStartEdit(doc)}
+                              onClick={() => {
+                                handleStartEdit(doc);
+                                setLongPressDocId(null);
+                              }}
                             >
                               <Edit2 className="h-3 w-3" />
                             </Button>
@@ -259,7 +282,10 @@ export const ConversationHistory = ({
                               size="icon"
                               variant="ghost"
                               className="h-7 w-7 shrink-0 text-destructive hover:text-destructive"
-                              onClick={() => handleDeleteDocument(doc.id, doc.storage_path)}
+                              onClick={() => {
+                                handleDeleteDocument(doc.id, doc.storage_path);
+                                setLongPressDocId(null);
+                              }}
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
