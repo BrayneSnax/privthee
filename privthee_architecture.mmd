@@ -1,0 +1,33 @@
+graph TD
+    subgraph "User Interface"
+        A[Browser] --> B{React App};
+        B --> C[Index.tsx];
+        C --> D{usePrivtheeChat.ts};
+        C --> E[UI Components];
+    end
+
+    subgraph "Backend"
+        F[Supabase Client] --> G{Supabase API};
+        G --> H[Auth];
+        G --> I[Database];
+        G --> J[Storage];
+        G --> K[Edge Functions];
+    end
+
+    subgraph "AI & Logic"
+        K --> L[privthee-chat-with-memory];
+        L --> M{Lovable AI Gateway};
+        M --> N[Gemini 2.5 Flash];
+        K --> O[parse-document];
+    end
+
+    subgraph "Database Schema"
+        I --> P(conversations);
+        I --> Q(messages);
+        I --> R(knowledge_documents);
+        I --> S(bookmarks);
+    end
+
+    D --> F;
+    O --> J;
+    L --> I;
